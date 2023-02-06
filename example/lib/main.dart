@@ -52,7 +52,7 @@ class MyHomePageState extends State<MyHomePage> {
                 bucketGlobal: PageStorageBucket(),
                 customScrollableLayoutBuilderInjector:
                     MonkeyScrollableLayoutBuilderInjector(),
-                mainAxisDirection: Axis.horizontal,
+                mainAxisDirection: Axis.vertical,
                 initBuilder: (context) {
                   return const Center(child: CircularProgressIndicator());
                 },

@@ -51,7 +51,7 @@ class MyHomePageState extends State<MyHomePage> {
               child: CustomLoadMore<int>(
                 bucketGlobal: PageStorageBucket(),
                 customScrollableLayoutBuilderInjector:
-                    MonkeyScrollableLayoutBuilderInjector(),
+                    CustomScrollableListViewBuilderInjector(),
                 mainAxisDirection: Axis.vertical,
                 initBuilder: (context) {
                   return const Center(child: CircularProgressIndicator());

@@ -24,8 +24,8 @@ abstract class CustomScrollableLayoutBuilderInjector<T> {
   );
 }
 
-class MonkeyScrollableLayoutBuilderInjector<T>
-    extends CustomScrollableLayoutBuilderInjector<T> {
+class CustomScrollableListViewBuilderInjector<T>
+    implements CustomScrollableLayoutBuilderInjector<T> {
   @override
   CustomLoadMoreContent<T> buildMainContent(
     BuildContext context,

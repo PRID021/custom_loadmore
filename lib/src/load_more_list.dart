@@ -55,17 +55,10 @@ class LoadMoreList<T> extends CustomLoadMoreContent<T> {
           height: height,
           child: Stack(
             children: [
-              // SingleChildScrollView
               CustomScrollView(
                 controller: scrollController,
                 scrollDirection: mainAxisDirection,
                 physics: const AlwaysScrollableScrollPhysics(),
-                // child: ListBody(
-                //   mainAxis: mainAxisDirection,
-                //   children: [
-                //     ...buildBody(context),
-                //   ],
-                // ),
                 slivers: [
                   SliverList(
                     delegate: SliverChildListDelegate(

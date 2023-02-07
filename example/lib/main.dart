@@ -33,8 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   int indexStart = 0;
-  int numberItems = 1000;
-  int itemsCount = 10000;
+  int numberItemPerPage = 20;
+  final int itemTotalCount = 60;
   bool haveMore = true;
   @override
   Widget build(BuildContext context) {
@@ -49,16 +49,12 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: CustomLoadMore<int>(
-                bucketGlobal: PageStorageBucket(),
-                customScrollableLayoutBuilderInjector:
-                    CustomScrollableListViewBuilderInjector(),
-                mainAxisDirection: Axis.vertical,
                 initBuilder: (context) {
                   return const Center(child: CircularProgressIndicator());
                 },
                 onRefresh: () {
                   indexStart = 0;
-                  numberItems = 10;
+                  numberItemPerPage = 20;
                   haveMore = true;
                 },
                 loadMoreBuilder: (context) {
@@ -124,23 +120,24 @@ class MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 loadMoreCallback: (pageIndex, pageSize) async {
-                  // if (Random().nextBool()) throw Exception("load more failed");
                   ScaffoldMessengerState scaffoldMessengerState =
                       ScaffoldMessenger.of(context);
                   await Future.delayed(const Duration(seconds: 1));
-                  if (numberItems > itemsCount || !haveMore) {
+                  if (!haveMore) {
                     return [];
                   }
-                  var values =
-                      List.generate(numberItems, (index) => index + indexStart);
-                  indexStart += numberItems;
+                  var values = List.generate(
+                      numberItemPerPage, (index) => index + indexStart);
+                  indexStart += numberItemPerPage;
+
                   SnackBar snackBar = SnackBar(
                     content:
                         Text('Load more success! with ${values.length} items'),
                     duration: const Duration(microseconds: 700),
                   );
                   scaffoldMessengerState.showSnackBar(snackBar);
-                  if (values.last >= itemsCount) {
+
+                  if (indexStart >= itemTotalCount) {
                     haveMore = false;
                   }
                   return values;

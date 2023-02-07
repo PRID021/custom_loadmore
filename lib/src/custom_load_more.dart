@@ -14,7 +14,7 @@ import 'package:flutter/rendering.dart';
 /// Currently we only support [ListView].
 
 class CustomLoadMore<T> extends StatefulWidget {
-  final Axis mainAxisDirection;
+  final Axis? mainAxisDirection;
   final InitBuilderDelegate initBuilder;
   final InitFailBuilderDelegate initFailedBuilder;
   final ListItemBuilderDelegate<T> listItemBuilder;
@@ -25,23 +25,23 @@ class CustomLoadMore<T> extends StatefulWidget {
   final int pageSize;
   final double? loadMoreOffset;
   final CustomLoadMoreController? customLoadMoreController;
-  final CustomScrollableLayoutBuilderInjector<T>
+  final CustomScrollableLayoutBuilderInjector<T>?
       customScrollableLayoutBuilderInjector;
   final bool shrinkWrap;
   final VoidCallback? onRefresh;
-  final PageStorageBucket bucketGlobal;
+  final PageStorageBucket? bucketGlobal;
   const CustomLoadMore({
     super.key,
-    required this.mainAxisDirection,
+    this.mainAxisDirection,
     required this.initBuilder,
     required this.initFailedBuilder,
     required this.loadMoreBuilder,
     required this.loadMoreFailedBuilder,
     required this.noMoreBuilder,
-    required this.customScrollableLayoutBuilderInjector,
+    this.customScrollableLayoutBuilderInjector,
     required this.listItemBuilder,
     required this.loadMoreCallback,
-    required this.bucketGlobal,
+    this.bucketGlobal,
     this.pageSize = 20,
     this.customLoadMoreController,
     this.shrinkWrap = false,
@@ -77,7 +77,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   @override
   void initState() {
     super.initState();
-    bucketGlobal = widget.bucketGlobal;
+    bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
     state = LoadMoreState.INIT;
     items = null;
 
@@ -88,7 +88,8 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
     loadMoreOffset = widget.loadMoreOffset ?? kLoadMoreExtent;
     customScrollableLayoutBuilderInjector =
-        widget.customScrollableLayoutBuilderInjector;
+        widget.customScrollableLayoutBuilderInjector ??
+            CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
     widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
       setState(() {

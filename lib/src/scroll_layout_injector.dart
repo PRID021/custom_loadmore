@@ -25,7 +25,7 @@ abstract class CustomScrollableLayoutBuilderInjector<T> {
 }
 
 class CustomScrollableListViewBuilderInjector<T>
-    implements CustomScrollableLayoutBuilderInjector<T> {
+    extends CustomScrollableLayoutBuilderInjector<T> {
   @override
   CustomLoadMoreContent<T> buildMainContent(
     BuildContext context,
@@ -34,10 +34,11 @@ class CustomScrollableListViewBuilderInjector<T>
     ScrollController scrollController,
     StreamController<LoadMoreEvent> streamController,
   ) {
+    Axis scrollDirection = widgetParent.mainAxisDirection ?? Axis.vertical;
     return LoadMoreList<T>(
       widgetParent.key,
       state: state,
-      mainAxisDirection: widgetParent.mainAxisDirection,
+      mainAxisDirection: scrollDirection,
       items: dataItems,
       widget: widgetParent,
       scrollController: scrollController,

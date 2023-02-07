@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:custom_loadmore/custom_loadmore.dart';
 import 'package:lottie/lottie.dart';
@@ -112,7 +111,7 @@ class MyHomePageState extends State<MyHomePage> {
                     child: Center(
                       child: Column(
                         children: [
-                          Text("$item"),
+                          Text("$item...."),
                           Lottie.asset('assets/images/test2.json'),
                         ],
                       ),

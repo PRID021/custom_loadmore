@@ -65,6 +65,13 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   /// This stream is used to process event come from user.
   late final StreamController<LoadMoreEvent> behaviorStream;
 
+  @override
+  void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    customScrollableLayoutBuilderInjector.setParent = widget;
+  }
+
   int get pageIndex {
     int index = 0;
     if (items != null) {

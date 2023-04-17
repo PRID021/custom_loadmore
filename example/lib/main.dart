@@ -49,35 +49,35 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: CustomLoadMore<int>(
-                customScrollableLayoutBuilderInjector:
-                    CustomSectionListViewBuilderInjector<int, String>(
-                        sectionFilter: ({required items}) {
-                  Map<String, List<int>> sortedMap = {};
-                  for (int i = 0; i < items.length; i++) {
-                    final value = items[i] ~/ 10;
+                // customScrollableLayoutBuilderInjector:
+                //     CustomSectionListViewBuilderInjector<int, String>(
+                //         sectionFilter: ({required items}) {
+                //   Map<String, List<int>> sortedMap = {};
+                //   for (int i = 0; i < items.length; i++) {
+                //     final value = items[i] ~/ 10;
 
-                    String collectionName = NumberToWordsEnglish.convert(value);
-                    bool haveCollection =
-                        sortedMap.keys.contains(collectionName);
-                    if (!haveCollection) {
-                      sortedMap[collectionName] = <int>[];
-                    } else {
-                      sortedMap[collectionName]!.add(items[i]);
-                    }
-                  }
+                //     String collectionName = NumberToWordsEnglish.convert(value);
+                //     bool haveCollection =
+                //         sortedMap.keys.contains(collectionName);
+                //     if (!haveCollection) {
+                //       sortedMap[collectionName] = <int>[];
+                //     } else {
+                //       sortedMap[collectionName]!.add(items[i]);
+                //     }
+                //   }
 
-                  return sortedMap;
-                }, sectionBuilder: (key, children) {
-                  return Column(
-                    children: [
-                      Text(key),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: children,
-                      ),
-                    ],
-                  );
-                }),
+                //   return sortedMap;
+                // }, sectionBuilder: (key, children) {
+                //   return Column(
+                //     children: [
+                //       Text(key),
+                //       Column(
+                //         mainAxisSize: MainAxisSize.min,
+                //         children: children,
+                //       ),
+                //     ],
+                //   );
+                // }),
                 initBuilder: (context) {
                   return const Center(child: CircularProgressIndicator());
                 },

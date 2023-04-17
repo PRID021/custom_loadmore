@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:custom_loadmore/custom_loadmore.dart';
 import 'package:lottie/lottie.dart';
+import 'package:number_to_words_english/number_to_words_english.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,8 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   int indexStart = 0;
-  int numberItemPerPage = 20;
-  final int itemTotalCount = 60;
+  int numberItemPerPage = 2000;
+  final int itemTotalCount = 6000;
   bool haveMore = true;
   @override
   Widget build(BuildContext context) {
@@ -48,6 +49,35 @@ class MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: CustomLoadMore<int>(
+                customScrollableLayoutBuilderInjector:
+                    CustomSectionListViewBuilderInjector<int, String>(
+                        sectionFilter: ({required items}) {
+                  Map<String, List<int>> sortedMap = {};
+                  for (int i = 0; i < items.length; i++) {
+                    final value = items[i] ~/ 10;
+
+                    String collectionName = NumberToWordsEnglish.convert(value);
+                    bool haveCollection =
+                        sortedMap.keys.contains(collectionName);
+                    if (!haveCollection) {
+                      sortedMap[collectionName] = <int>[];
+                    } else {
+                      sortedMap[collectionName]!.add(items[i]);
+                    }
+                  }
+
+                  return sortedMap;
+                }, sectionBuilder: (key, children) {
+                  return Column(
+                    children: [
+                      Text(key),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: children,
+                      ),
+                    ],
+                  );
+                }),
                 initBuilder: (context) {
                   return const Center(child: CircularProgressIndicator());
                 },

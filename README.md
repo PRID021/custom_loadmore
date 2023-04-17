@@ -122,6 +122,7 @@ To change the default layout behavior (the list view layout), follow these steps
 - `scrollController`: support you the ability to manuals the scroll behavior.
 - `streamController`: help you more convenience to change the state of load more widget.
 - `state` : supplies you the current state of the widget.
+- `widget`: provide you to accessibility to widget configuration where you can get all build delegate and other properties. 
 
 3. Attach it new layout injector to `CustomLoadMore`.
    <br>

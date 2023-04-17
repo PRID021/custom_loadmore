@@ -115,8 +115,7 @@ class LoadMoreSequenceList<T> extends LoadMoreList<T> {
     }
     return items.asMap().entries.map((e) {
       int idx = e.key;
-      T item = e.value;
-      return widget.listItemBuilder(context, idx, item);
+      return widget.listItemBuilder(context, idx, items);
     }).toList();
   }
 
@@ -160,7 +159,7 @@ class LoadMoreSectionList<T, K> extends LoadMoreList<T> {
       K key = mapItems.keys.toList()[i];
       List<T>? items = mapItems[key];
       final widgets = items?.map((item) {
-        return widget.listItemBuilder(context, items.indexOf(item), item);
+        return widget.listItemBuilder(context, items.indexOf(item), items);
       }).toList();
       mapSection[key] = widgets ?? [];
     }

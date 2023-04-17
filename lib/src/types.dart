@@ -35,7 +35,7 @@ typedef InitBuilderDelegate = Widget Function(BuildContext context);
 typedef InitFailBuilderDelegate = Widget Function(
     BuildContext context, VoidCallback retryCallback);
 typedef ListItemBuilderDelegate<T> = Widget Function(
-    BuildContext context, int index, T item);
+    BuildContext context, int index, List<T> items);
 typedef LoadMoreBuilderDelegate = Widget Function(BuildContext context);
 typedef LoadMoreFailBuilderDelegate = Widget Function(
     BuildContext context, VoidCallback retryLoadMoreCallback);

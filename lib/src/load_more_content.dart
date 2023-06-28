@@ -6,13 +6,13 @@ import 'custom_load_more.dart';
 import 'types.dart';
 
 abstract class CustomLoadMoreContent<T> extends StatelessWidget {
-  final LoadMoreState state;
+  final CustomLoadMoreState state;
   final Axis mainAxisDirection;
   final List<T>? items;
   final CustomLoadMore<T> widget;
   final ScrollController scrollController;
   final bool shrinkWrap;
-  final StreamController<LoadMoreEvent> streamController;
+  final StreamController<CustomLoadMoreEvent> streamController;
 
   const CustomLoadMoreContent(
     Key? key, {

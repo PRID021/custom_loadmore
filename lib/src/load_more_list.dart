@@ -15,24 +15,30 @@ abstract class LoadMoreList<T> extends CustomLoadMoreContent<T> {
   List<Widget> buildBody(BuildContext context);
 
   Widget? buildStateContent(BuildContext context) {
-    switch (state) {
-      case LoadMoreState.INIT:
-        return null;
-      case LoadMoreState.INIT_FAILED:
-        return null;
-      case LoadMoreState.STABLE:
-        return null;
-      case LoadMoreState.LOAD_MORE:
-        return widget.loadMoreBuilder(context);
-      case LoadMoreState.LOAD_MORE_FAILED:
-        return widget.loadMoreFailedBuilder(context, () {
-          streamController.add(LoadMoreEvent.RETRY_WHEN_LOAD_MORE_FAILED);
-        });
-      case LoadMoreState.NO_MORE:
-        return widget.noMoreBuilder(context);
-      default:
-        return null;
+    if(state is CustomLoadMoreInitState){
+      return null;
     }
+    if(state is  CustomLoadMoreInitFailedState){
+      return null;
+    }
+    if(state is CustomLoadMoreStableState){
+      return null;
+    }
+
+    if(state is CustomLoadMoreLoadingMoreState){
+      return widget.loadMoreBuilder(context);
+    }
+
+    if(state is CustomLoadMoreLoadMoreFailedState){
+      return widget.loadMoreFailedBuilder(context, () {
+        streamController.add(const CustomLoadMoreEventRetryWhenLoadMoreFailed());
+      });
+    }
+
+    if(state is CustomLoadMoreNoMoreDataState){
+      return widget.noMoreBuilder(context);
+    }
+    return null;
   }
 
   @override
@@ -60,14 +66,14 @@ abstract class LoadMoreList<T> extends CustomLoadMoreContent<T> {
               ),
               AnimatedScale(
                 duration: const Duration(milliseconds: 600),
-                scale: (state == LoadMoreState.INIT ||
-                        state == LoadMoreState.INIT_FAILED)
+                scale: (state is CustomLoadMoreInitState ||
+                        state is  CustomLoadMoreInitFailedState)
                     ? 1
                     : 0,
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 600),
-                  opacity: (state == LoadMoreState.INIT ||
-                          state == LoadMoreState.INIT_FAILED)
+                  opacity: (state is CustomLoadMoreInitState ||
+                          state is CustomLoadMoreInitFailedState)
                       ? 1
                       : 0,
                   child: _buildInitState(context, state),
@@ -80,18 +86,19 @@ abstract class LoadMoreList<T> extends CustomLoadMoreContent<T> {
     );
   }
 
-  Widget _buildInitState(BuildContext context, LoadMoreState state) {
-    if (state == LoadMoreState.INIT) {
+  Widget _buildInitState(BuildContext context, CustomLoadMoreState state) {
+    if (state is CustomLoadMoreInitState) {
       return Center(
         child: widget.initBuilder(context),
       );
     }
-    if (state == LoadMoreState.INIT_FAILED) {
+    if (state is CustomLoadMoreInitFailedState) {
       return Center(
         child: widget.initFailedBuilder(
           context,
+          state.errorReason,
           () {
-            streamController.add(LoadMoreEvent.RETRY_WHEN_INIT_FAILED);
+            streamController.add(const CustomLoadMoreEventRetryWhenInitFailed());
           },
         ),
       );

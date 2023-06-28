@@ -12,28 +12,71 @@ enum LoadMoreType {
   SLIVER_GRID,
 }
 
-/// This enum type using to trace the state of [CustomLoadMore] widget.
+// The state of [CustomLoadMore] widget.
 
-enum LoadMoreState {
-  INIT,
-  INIT_FAILED,
-  STABLE,
-  LOAD_MORE,
-  LOAD_MORE_FAILED,
-  NO_MORE,
+abstract class CustomLoadMoreState{
+ const CustomLoadMoreState();
 }
 
-enum LoadMoreEvent {
-  RETRY_WHEN_INIT_FAILED,
-  RETRY_WHEN_LOAD_MORE_FAILED,
-  PULL_TO_REFRESH,
-  SCROLL_TO_LOAD_MORE,
-  ERROR_OCCURRED,
+class CustomLoadMoreInitState extends CustomLoadMoreState{
+  const CustomLoadMoreInitState();
 }
+
+class CustomLoadMoreInitFailedState extends CustomLoadMoreState{
+  final Exception? errorReason;
+  const CustomLoadMoreInitFailedState({this.errorReason});
+}
+
+class CustomLoadMoreStableState extends CustomLoadMoreState{
+  const CustomLoadMoreStableState();
+}
+class CustomLoadMoreLoadingMoreState extends CustomLoadMoreState{
+  const CustomLoadMoreLoadingMoreState();
+}
+
+class CustomLoadMoreLoadMoreFailedState extends CustomLoadMoreState{
+  final Exception? errorReason;
+  const CustomLoadMoreLoadMoreFailedState({this.errorReason});
+}
+
+class CustomLoadMoreNoMoreDataState extends CustomLoadMoreState{
+  const CustomLoadMoreNoMoreDataState();
+}
+
+
+// The event of [CustomLoadMore] widget.
+
+abstract class CustomLoadMoreEvent {
+  const CustomLoadMoreEvent();
+}
+class CustomLoadMoreEventRetryWhenInitFailed extends CustomLoadMoreEvent{
+  const CustomLoadMoreEventRetryWhenInitFailed();
+}
+
+class CustomLoadMoreEventRetryWhenLoadMoreFailed extends CustomLoadMoreEvent{
+  const CustomLoadMoreEventRetryWhenLoadMoreFailed();
+}
+
+class CustomLoadMoreEventPullToRefresh extends CustomLoadMoreEvent{
+  const CustomLoadMoreEventPullToRefresh();
+}
+
+class CustomLoadMoreEventScrollToLoadMore extends CustomLoadMoreEvent{
+  const CustomLoadMoreEventScrollToLoadMore();
+}
+
+class CustomLoadMoreEventErrorOccurred extends CustomLoadMoreEvent{
+  final Exception? errorReason;
+  const CustomLoadMoreEventErrorOccurred({this.errorReason});
+}
+
+
+
+
 
 typedef InitBuilderDelegate = Widget Function(BuildContext context);
 typedef InitFailBuilderDelegate = Widget Function(
-    BuildContext context, VoidCallback retryCallback);
+    BuildContext context,Exception? errorReason ,VoidCallback retryCallback);
 typedef ListItemBuilderDelegate<T> = Widget Function(
     BuildContext context, int index, List<T> items);
 typedef LoadMoreBuilderDelegate = Widget Function(BuildContext context);

@@ -54,7 +54,7 @@ class CustomLoadMore<T> extends StatefulWidget {
 }
 
 class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
-  late LoadMoreState state;
+  late CustomLoadMoreState state;
   late List<T>? items;
   late CustomScrollableLayoutBuilderInjector<T>
       customScrollableLayoutBuilderInjector;
@@ -63,7 +63,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   late final PageStorageBucket bucketGlobal;
 
   /// This stream is used to process event come from user.
-  late final StreamController<LoadMoreEvent> behaviorStream;
+  late final StreamController<CustomLoadMoreEvent> behaviorStream;
 
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
@@ -85,7 +85,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   void initState() {
     super.initState();
     bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
-    state = LoadMoreState.INIT;
+    state = const CustomLoadMoreInitState();
     items = null;
 
     CustomLoadMoreController customLoadMoreController =
@@ -101,88 +101,92 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = value;
-        state = LoadMoreState.STABLE;
+        state =  const CustomLoadMoreStableState();
       });
     }).catchError((error) {
       setState(() {
-        state = LoadMoreState.INIT_FAILED;
+        state = CustomLoadMoreInitFailedState(errorReason: error);
       });
     });
     behaviorStream.stream.listen((event) {
-      switch (event) {
-        case LoadMoreEvent.RETRY_WHEN_INIT_FAILED:
+
+
+      switch (event.runtimeType) {
+        case CustomLoadMoreEventRetryWhenInitFailed:
           retryCallFallback();
           break;
-        case LoadMoreEvent.RETRY_WHEN_LOAD_MORE_FAILED:
+        case CustomLoadMoreEventRetryWhenLoadMoreFailed:
           retryLoadMoreFailed();
           break;
-        case LoadMoreEvent.PULL_TO_REFRESH:
+        case CustomLoadMoreEventPullToRefresh:
           pullForRefresh();
           break;
-        case LoadMoreEvent.SCROLL_TO_LOAD_MORE:
+        case CustomLoadMoreEventScrollToLoadMore:
           loadMore();
           break;
-        case LoadMoreEvent.ERROR_OCCURRED:
-          handelError();
+        case CustomLoadMoreEventErrorOccurred:
+          handelError(errorReason: (event as CustomLoadMoreEventErrorOccurred).errorReason);
           break;
       }
     });
   }
 
   /// This method is used to handle error.
-  void handelError() {
+  void handelError({Exception? errorReason}) {
     setState(() {
-      state = LoadMoreState.INIT_FAILED;
+      state =  CustomLoadMoreInitFailedState(errorReason: errorReason);
     });
   }
 
   /// This method is used to retry load more when load more failed.
   void retryLoadMoreFailed() {
-    if (state != LoadMoreState.LOAD_MORE_FAILED) {
+    if (state is!  CustomLoadMoreLoadMoreFailedState) {
       return;
     }
     setState(() {
-      state = LoadMoreState.LOAD_MORE;
+      state = const CustomLoadMoreLoadingMoreState();
     });
     widget.loadMoreCallback(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = [...items ?? [], ...value ?? []];
-        state = LoadMoreState.STABLE;
+        state = const  CustomLoadMoreStableState();
         if (value?.isEmpty ?? true) {
-          state = LoadMoreState.NO_MORE;
+          state = const CustomLoadMoreNoMoreDataState();
         }
       });
     }).catchError((error) {
       setState(() {
-        state = LoadMoreState.LOAD_MORE_FAILED;
+        state = CustomLoadMoreLoadMoreFailedState(
+          errorReason: error
+        );
       });
     });
   }
 
   /// This method is used to load more data.
   void loadMore() {
-    if (state != LoadMoreState.STABLE) {
+    if (state is! CustomLoadMoreStableState) {
       return;
     }
     setState(() {
-      state = LoadMoreState.LOAD_MORE;
+      state = const CustomLoadMoreLoadingMoreState();
     });
     widget.loadMoreCallback(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = [...items ?? [], ...value ?? []];
-        state = LoadMoreState.STABLE;
+        state = const CustomLoadMoreStableState();
         if (value?.isEmpty ?? true) {
-          state = LoadMoreState.NO_MORE;
+          state = const CustomLoadMoreNoMoreDataState();
           return;
         }
         if (value != null && value.length < widget.pageSize) {
-          state = LoadMoreState.NO_MORE;
+          state = const CustomLoadMoreNoMoreDataState();
           return;
         }
       });
     }).catchError((error) {
       setState(() {
-        state = LoadMoreState.LOAD_MORE_FAILED;
+        state = CustomLoadMoreLoadMoreFailedState(errorReason: error);
       });
     });
   }
@@ -190,16 +194,16 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   /// Call back when init failed.
   void retryCallFallback() {
     setState(() {
-      state = LoadMoreState.INIT;
+      state = const CustomLoadMoreInitState();
     });
     widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = value;
-        state = LoadMoreState.STABLE;
+        state = const CustomLoadMoreStableState();
       });
     }).catchError((error) {
       setState(() {
-        state = LoadMoreState.INIT_FAILED;
+        state = const CustomLoadMoreInitFailedState();
       });
     });
   }
@@ -209,16 +213,16 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     widget.onRefresh?.call();
     setState(() {
       items = null;
-      state = LoadMoreState.INIT;
+      state = const CustomLoadMoreInitState();
     });
     widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = value;
-        state = LoadMoreState.STABLE;
+        state = const CustomLoadMoreStableState();
       });
     }).catchError((error) {
       setState(() {
-        state = LoadMoreState.INIT_FAILED;
+        state = CustomLoadMoreInitFailedState(errorReason: error);
       });
     });
   }
@@ -232,12 +236,12 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
         if (scrollController.position.userScrollDirection ==
             ScrollDirection.reverse) {
           //('User is going down');
-          if (state == LoadMoreState.NO_MORE) {
+          if (state is CustomLoadMoreNoMoreDataState) {
             return false;
           }
           if (notification.metrics.pixels >
               notification.metrics.maxScrollExtent - loadMoreOffset) {
-            behaviorStream.sink.add(LoadMoreEvent.SCROLL_TO_LOAD_MORE);
+            behaviorStream.sink.add(const CustomLoadMoreEventScrollToLoadMore());
           }
           return false;
         }

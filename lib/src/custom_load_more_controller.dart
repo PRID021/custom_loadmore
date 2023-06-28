@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'types.dart';
 
 class CustomLoadMoreController {
-  StreamController<LoadMoreEvent>? _behaviorStreamController;
+  StreamController<CustomLoadMoreEvent>? _behaviorStreamController;
   ScrollController? _scrollController;
 
-  set behaviorStream(StreamController<LoadMoreEvent> behaviorStream) {
+  set behaviorStream(StreamController<CustomLoadMoreEvent> behaviorStream) {
     _behaviorStreamController = behaviorStream;
   }
 
-  StreamController<LoadMoreEvent> get behaviorStream {
+  StreamController<CustomLoadMoreEvent> get behaviorStream {
     if (_behaviorStreamController != null) return _behaviorStreamController!;
-    _behaviorStreamController = StreamController<LoadMoreEvent>();
+    _behaviorStreamController = StreamController<CustomLoadMoreEvent>();
     return _behaviorStreamController!;
   }
 
@@ -29,16 +29,16 @@ class CustomLoadMoreController {
 
   void refresh() {
     _behaviorStreamController!.add(
-      LoadMoreEvent.PULL_TO_REFRESH,
+      const CustomLoadMoreEventPullToRefresh()
     );
   }
 
   void loadMore() {
-    _behaviorStreamController?.add(LoadMoreEvent.SCROLL_TO_LOAD_MORE);
+    _behaviorStreamController?.add(const CustomLoadMoreEventScrollToLoadMore());
   }
 
-  void announceLoadMoreFailed() {
-    _behaviorStreamController?.add(LoadMoreEvent.ERROR_OCCURRED);
+  void announceLoadMoreFailed({Exception? errorReason}) {
+    _behaviorStreamController?.add(CustomLoadMoreEventErrorOccurred(errorReason: errorReason));
   }
 
   void dispose() {

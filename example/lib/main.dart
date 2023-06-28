@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:custom_loadmore/custom_loadmore.dart';
 import 'package:lottie/lottie.dart';
-import 'package:number_to_words_english/number_to_words_english.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,8 +32,8 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   int indexStart = 0;
-  int numberItemPerPage = 2000;
-  final int itemTotalCount = 6000;
+  int numberItemPerPage = 20;
+  final int itemTotalCount = 100;
   bool haveMore = true;
   @override
   Widget build(BuildContext context) {
@@ -95,7 +94,7 @@ class MyHomePageState extends State<MyHomePage> {
                     ],
                   );
                 },
-                initFailedBuilder: (context, retryCallback) {
+                initFailedBuilder: (context,reasonError ,retryCallback) {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -141,7 +140,7 @@ class MyHomePageState extends State<MyHomePage> {
                     child: Center(
                       child: Column(
                         children: [
-                          Text("$item...."),
+                          // Text("$item...."),
                           Lottie.asset('assets/images/test2.json'),
                         ],
                       ),

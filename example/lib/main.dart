@@ -112,7 +112,7 @@ class MyHomePageState extends State<MyHomePage> {
                     ],
                   );
                 },
-                loadMoreFailedBuilder: (context, retryLoadMoreCallback) {
+                loadMoreFailedBuilder: (context, error,retryLoadMoreCallback) {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [

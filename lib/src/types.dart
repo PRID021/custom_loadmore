@@ -81,7 +81,7 @@ typedef ListItemBuilderDelegate<T> = Widget Function(
     BuildContext context, int index, List<T> items);
 typedef LoadMoreBuilderDelegate = Widget Function(BuildContext context);
 typedef LoadMoreFailBuilderDelegate = Widget Function(
-    BuildContext context, VoidCallback retryLoadMoreCallback);
+    BuildContext context,Exception? errorReason ,VoidCallback retryLoadMoreCallback);
 typedef NoMoreBuilderDelegate = Widget Function(BuildContext context);
 
 /// The callback function of [CustomLoadMore] widget.

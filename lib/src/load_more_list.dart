@@ -30,7 +30,8 @@ abstract class LoadMoreList<T> extends CustomLoadMoreContent<T> {
     }
 
     if(state is CustomLoadMoreLoadMoreFailedState){
-      return widget.loadMoreFailedBuilder(context, () {
+      Exception? errorReason = (state as CustomLoadMoreLoadMoreFailedState).errorReason;
+      return widget.loadMoreFailedBuilder(context, errorReason,() {
         streamController.add(const CustomLoadMoreEventRetryWhenLoadMoreFailed());
       });
     }

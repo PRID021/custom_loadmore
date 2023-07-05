@@ -31,10 +31,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  int indexStart = 0;
-  int numberItemPerPage = 20;
-  final int itemTotalCount = 100;
-  bool haveMore = true;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -80,11 +76,7 @@ class MyHomePageState extends State<MyHomePage> {
                 initBuilder: (context) {
                   return const Center(child: CircularProgressIndicator());
                 },
-                onRefresh: () {
-                  indexStart = 0;
-                  numberItemPerPage = 20;
-                  haveMore = true;
-                },
+                onRefresh: () {},
                 loadMoreBuilder: (context) {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -94,7 +86,7 @@ class MyHomePageState extends State<MyHomePage> {
                     ],
                   );
                 },
-                initFailedBuilder: (context,reasonError ,retryCallback) {
+                initFailedBuilder: (context, reasonError, retryCallback) {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -112,7 +104,7 @@ class MyHomePageState extends State<MyHomePage> {
                     ],
                   );
                 },
-                loadMoreFailedBuilder: (context, error,retryLoadMoreCallback) {
+                loadMoreFailedBuilder: (context, error, retryLoadMoreCallback) {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -147,29 +139,8 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 },
-                loadMoreCallback: (pageIndex, pageSize) async {
-                  ScaffoldMessengerState scaffoldMessengerState =
-                      ScaffoldMessenger.of(context);
-                  await Future.delayed(const Duration(seconds: 1));
-                  if (!haveMore) {
-                    return [];
-                  }
-                  var values = List.generate(
-                      numberItemPerPage, (index) => index + indexStart);
-                  indexStart += numberItemPerPage;
 
-                  SnackBar snackBar = SnackBar(
-                    content:
-                        Text('Load more success! with ${values.length} items'),
-                    duration: const Duration(microseconds: 700),
-                  );
-                  scaffoldMessengerState.showSnackBar(snackBar);
-
-                  if (indexStart >= itemTotalCount) {
-                    haveMore = false;
-                  }
-                  return values;
-                },
+                loadMoreProvider: MyController(),
                 shrinkWrap: false,
               ),
             ),
@@ -177,5 +148,28 @@ class MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+class MyController implements ICustomLoadMoreProvider<int> {
+  int indexStart = 0;
+  int numberItemPerPage = 20;
+  final int itemTotalCount = 100;
+  bool haveMore = true;
+
+  @override
+  Future<List<int>?> loadMore(int pageIndex, int pageSize) async {
+    await Future.delayed(const Duration(seconds: 1));
+    if (!haveMore) {
+      return [];
+    }
+    var values =
+        List.generate(numberItemPerPage, (index) => index + indexStart);
+    indexStart += numberItemPerPage;
+
+    if (indexStart >= itemTotalCount) {
+      haveMore = false;
+    }
+    return values;
   }
 }

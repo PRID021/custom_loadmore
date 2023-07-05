@@ -1,4 +1,3 @@
-// ignore_for_file: constant_identifier_names
 
 import 'dart:async';
 
@@ -21,12 +20,13 @@ class CustomLoadMore<T> extends StatefulWidget {
   final LoadMoreBuilderDelegate loadMoreBuilder;
   final LoadMoreFailBuilderDelegate loadMoreFailedBuilder;
   final NoMoreBuilderDelegate noMoreBuilder;
-  final FutureCallback<T> loadMoreCallback;
+  final FutureCallback<T>? loadMoreCallback;
   final int pageSize;
   final double? loadMoreOffset;
   final CustomLoadMoreController? customLoadMoreController;
   final CustomScrollableLayoutBuilderInjector<T>?
       customScrollableLayoutBuilderInjector;
+  final ICustomLoadMoreProvider<T>? loadMoreProvider;
   final bool shrinkWrap;
   final VoidCallback? onRefresh;
   final PageStorageBucket? bucketGlobal;
@@ -40,13 +40,15 @@ class CustomLoadMore<T> extends StatefulWidget {
     required this.noMoreBuilder,
     this.customScrollableLayoutBuilderInjector,
     required this.listItemBuilder,
-    required this.loadMoreCallback,
+    @Deprecated('Use ICustomLoadMoreProvider instead')
+    this.loadMoreCallback,
     this.bucketGlobal,
     this.pageSize = 20,
     this.customLoadMoreController,
     this.shrinkWrap = false,
     this.loadMoreOffset,
     this.onRefresh,
+    this.loadMoreProvider,
   });
 
   @override
@@ -64,6 +66,11 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   /// This stream is used to process event come from user.
   late final StreamController<CustomLoadMoreEvent> behaviorStream;
+
+  // ICustomLoadMore interface provide the load more function to load more data
+  // from server.
+
+  late Function? loadMoreProvider;
 
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
@@ -88,6 +95,11 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     state = const CustomLoadMoreInitState();
     items = null;
 
+    /// Instead use directly widget.loadMoreCallback, that will be remove entirely
+    /// in the future. We use ICustomLoadMore interface to provide the load more
+    /// function to load more data from server to better adaptation with more state management.
+    loadMoreProvider = (widget.loadMoreProvider?.loadMore) ?? (widget.loadMoreCallback);
+    assert(loadMoreProvider != null, 'Must provide load more function to load more data from server.');
     CustomLoadMoreController customLoadMoreController =
         widget.customLoadMoreController ?? CustomLoadMoreController();
     scrollController = customLoadMoreController.scrollController;
@@ -98,7 +110,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
         widget.customScrollableLayoutBuilderInjector ??
             CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
-    widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
+    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = value;
         state = const CustomLoadMoreStableState();
@@ -146,7 +158,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreLoadingMoreState();
     });
-    widget.loadMoreCallback(pageIndex, widget.pageSize).then((value) {
+    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = [...items ?? [], ...value ?? []];
         state = const CustomLoadMoreStableState();
@@ -169,7 +181,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreLoadingMoreState();
     });
-    widget.loadMoreCallback(pageIndex, widget.pageSize).then((value) {
+    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = [...items ?? [], ...value ?? []];
         state = const CustomLoadMoreStableState();
@@ -194,7 +206,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreInitState();
     });
-    widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
+    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = value;
         state = const CustomLoadMoreStableState();
@@ -213,7 +225,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
       items = null;
       state = const CustomLoadMoreInitState();
     });
-    widget.loadMoreCallback.call(pageIndex, widget.pageSize).then((value) {
+    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
       setState(() {
         items = value;
         state = const CustomLoadMoreStableState();

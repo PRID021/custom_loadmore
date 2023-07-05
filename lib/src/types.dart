@@ -12,6 +12,16 @@ enum LoadMoreType {
   SLIVER_GRID,
 }
 
+
+/// An abstract mixin that interface that provide the load more function in order to
+/// custom load more widget working with.
+///
+
+abstract class ICustomLoadMoreProvider<T>{
+  Future<List<T>?> loadMore(int pageIndex, int pageSize);
+}
+
+
 // The state of [CustomLoadMore] widget.
 
 abstract class CustomLoadMoreState{
@@ -90,5 +100,7 @@ typedef NoMoreBuilderDelegate = Widget Function(BuildContext context);
 /// If the [Future] object complete with [true] value mean the that callback is successes.
 /// null value or [false] value mean the callback is failed.
 
+
+@Deprecated('Use ICustomLoadMoreProvider instead')
 typedef FutureCallback<T> = Future<List<T>?> Function(
     int pageIndex, int pageSize);

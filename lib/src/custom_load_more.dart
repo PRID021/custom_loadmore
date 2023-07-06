@@ -69,8 +69,28 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   // ICustomLoadMore interface provide the load more function to load more data
   // from server.
+  late  Future<List<T>?> Function(int pageIndex, int pageSize)? loadMoreProvider;
 
-  late Function? loadMoreProvider;
+  ///  There variables using to control the load more process.
+  ///  [_currentFutureIndex] is the index of the current future that is processing.
+  int _currentFutureIndex = 0;
+  Future<List<T>?> executeLoadMore(Future<List<T>?> future)  {
+    _currentFutureIndex++;
+    Completer<List<T>?> completer = Completer<List<T>?>();
+    int index = _currentFutureIndex;
+
+    future.then((value) {
+      if(index == _currentFutureIndex){
+        completer.complete(value);
+      }
+    }).catchError((error) {
+      if(index == _currentFutureIndex){
+        completer.completeError(error);
+      }
+    });
+    return completer.future;
+  }
+
 
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
@@ -110,35 +130,51 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
         widget.customScrollableLayoutBuilderInjector ??
             CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
-    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
-      setState(() {
-        items = value;
-        state = const CustomLoadMoreStableState();
+
+    final future =  loadMoreProvider?.call(pageIndex, widget.pageSize);
+    if(future!= null){
+      executeLoadMore(future).then((value) {
+        setState(() {
+          items = value;
+          state = const CustomLoadMoreStableState();
+        });
+      }).catchError((error) {
+        setState(() {
+          state = CustomLoadMoreInitFailedState(errorReason: error);
+        });
       });
-    }).catchError((error) {
-      setState(() {
-        state = CustomLoadMoreInitFailedState(errorReason: error);
-      });
-    });
+    }
+
+
+
     behaviorStream.stream.listen((event) {
-      switch (event.runtimeType) {
-        case CustomLoadMoreEventRetryWhenInitFailed:
-          retryCallFallback();
-          break;
-        case CustomLoadMoreEventRetryWhenLoadMoreFailed:
-          retryLoadMoreFailed();
-          break;
-        case CustomLoadMoreEventPullToRefresh:
-          pullForRefresh();
-          break;
-        case CustomLoadMoreEventScrollToLoadMore:
-          loadMore();
-          break;
-        case CustomLoadMoreEventErrorOccurred:
-          handelError(
-              errorReason:
-                  (event as CustomLoadMoreEventErrorOccurred).errorReason);
-          break;
+
+
+      if(event is  CustomLoadMoreEventRetryWhenInitFailed){
+        retryCallFallback();
+        return;
+      }
+      if(event is CustomLoadMoreEventRetryWhenLoadMoreFailed){
+        retryLoadMoreFailed();
+        return;
+      }
+
+      if(event is CustomLoadMoreEventPullToRefresh){
+        pullForRefresh();
+        return;
+      }
+
+      if(event is CustomLoadMoreEventScrollToLoadMore){
+        loadMore();
+        return;
+      }
+
+      if(event is CustomLoadMoreEventErrorOccurred){
+
+        handelError(
+            errorReason:
+            (event).errorReason);
+        return;
       }
     });
   }
@@ -158,19 +194,26 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreLoadingMoreState();
     });
-    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
-      setState(() {
-        items = [...items ?? [], ...value ?? []];
-        state = const CustomLoadMoreStableState();
-        if (value?.isEmpty ?? true) {
-          state = const CustomLoadMoreNoMoreDataState();
-        }
+
+
+
+    final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
+    if(future != null){
+      executeLoadMore(future).then((value) {
+        setState(() {
+          items = [...items ?? [], ...value ?? []];
+          state = const CustomLoadMoreStableState();
+          if (value?.isEmpty ?? true) {
+            state = const CustomLoadMoreNoMoreDataState();
+          }
+        });
+      }).catchError((error) {
+        setState(() {
+          state = CustomLoadMoreLoadMoreFailedState(errorReason: error);
+        });
       });
-    }).catchError((error) {
-      setState(() {
-        state = CustomLoadMoreLoadMoreFailedState(errorReason: error);
-      });
-    });
+    }
+
   }
 
   /// This method is used to load more data.
@@ -181,24 +224,28 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreLoadingMoreState();
     });
-    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
-      setState(() {
-        items = [...items ?? [], ...value ?? []];
-        state = const CustomLoadMoreStableState();
-        if (value?.isEmpty ?? true) {
-          state = const CustomLoadMoreNoMoreDataState();
-          return;
-        }
-        if (value != null && value.length < widget.pageSize) {
-          state = const CustomLoadMoreNoMoreDataState();
-          return;
-        }
+    final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
+    if(future != null){
+      executeLoadMore(future).then((value) {
+        setState(() {
+          items = [...items ?? [], ...value ?? []];
+          state = const CustomLoadMoreStableState();
+          if (value?.isEmpty ?? true) {
+            state = const CustomLoadMoreNoMoreDataState();
+            return;
+          }
+          if (value != null && value.length < widget.pageSize) {
+            state = const CustomLoadMoreNoMoreDataState();
+            return;
+          }
+        });
+      }).catchError((error) {
+        setState(() {
+          state = CustomLoadMoreLoadMoreFailedState(errorReason: error);
+        });
       });
-    }).catchError((error) {
-      setState(() {
-        state = CustomLoadMoreLoadMoreFailedState(errorReason: error);
-      });
-    });
+    }
+
   }
 
   /// Call back when init failed.
@@ -206,16 +253,20 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreInitState();
     });
-    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
-      setState(() {
-        items = value;
-        state = const CustomLoadMoreStableState();
+    final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
+    if(future != null){
+      executeLoadMore(future).then((value) {
+        setState(() {
+          items = value;
+          state = const CustomLoadMoreStableState();
+        });
+      }).catchError((error) {
+        setState(() {
+          state = const CustomLoadMoreInitFailedState();
+        });
       });
-    }).catchError((error) {
-      setState(() {
-        state = const CustomLoadMoreInitFailedState();
-      });
-    });
+    }
+
   }
 
   /// Call back when pull for refresh.
@@ -225,16 +276,20 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
       items = null;
       state = const CustomLoadMoreInitState();
     });
-    loadMoreProvider?.call(pageIndex, widget.pageSize).then((value) {
-      setState(() {
-        items = value;
-        state = const CustomLoadMoreStableState();
+
+    final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
+    if(future!=null){
+      executeLoadMore(future).then((value) {
+        setState(() {
+          items = value;
+          state = const CustomLoadMoreStableState();
+        });
+      }).catchError((error) {
+        setState(() {
+          state = CustomLoadMoreInitFailedState(errorReason: error);
+        });
       });
-    }).catchError((error) {
-      setState(() {
-        state = CustomLoadMoreInitFailedState(errorReason: error);
-      });
-    });
+    }
   }
 
   @override

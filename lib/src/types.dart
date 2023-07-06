@@ -33,7 +33,7 @@ class CustomLoadMoreInitState extends CustomLoadMoreState{
 }
 
 class CustomLoadMoreInitFailedState extends CustomLoadMoreState{
-  final Exception? errorReason;
+  final dynamic errorReason;
   const CustomLoadMoreInitFailedState({this.errorReason});
 }
 
@@ -45,7 +45,7 @@ class CustomLoadMoreLoadingMoreState extends CustomLoadMoreState{
 }
 
 class CustomLoadMoreLoadMoreFailedState extends CustomLoadMoreState{
-  final Exception? errorReason;
+  final dynamic errorReason;
   const CustomLoadMoreLoadMoreFailedState({this.errorReason});
 }
 

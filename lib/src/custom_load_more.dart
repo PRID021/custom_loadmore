@@ -69,7 +69,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   // ICustomLoadMore interface provide the load more function to load more data
   // from server.
-  late  Future<List<T>?> Function(int pageIndex, int pageSize)? loadMoreProvider;
+  late  FutureCallback<T>? loadMoreProvider;
 
   ///  There variables using to control the load more process.
   ///  [_currentFutureIndex] is the index of the current future that is processing.

@@ -101,6 +101,6 @@ typedef NoMoreBuilderDelegate = Widget Function(BuildContext context);
 /// null value or [false] value mean the callback is failed.
 
 
-@Deprecated('Use ICustomLoadMoreProvider instead')
+
 typedef FutureCallback<T> = Future<List<T>?> Function(
     int pageIndex, int pageSize);

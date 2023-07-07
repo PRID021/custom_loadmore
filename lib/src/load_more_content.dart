@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_sealed_annotation
 
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'custom_load_more.dart';
 import 'types.dart';
 

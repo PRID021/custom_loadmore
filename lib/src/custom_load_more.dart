@@ -74,7 +74,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   ///  There variables using to control the load more process.
   ///  [_currentFutureIndex] is the index of the current future that is processing.
   int _currentFutureIndex = 0;
-  Future<List<T>?> executeLoadMore(Future<List<T>?> future)  {
+  Future<List<T>?> _executeLoadMore(Future<List<T>?> future)  {
     _currentFutureIndex++;
     Completer<List<T>?> completer = Completer<List<T>?>();
     int index = _currentFutureIndex;
@@ -133,7 +133,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
     final future =  loadMoreProvider?.call(pageIndex, widget.pageSize);
     if(future!= null){
-      executeLoadMore(future).then((value) {
+      _executeLoadMore(future).then((value) {
         setState(() {
           items = value;
           state = const CustomLoadMoreStableState();
@@ -148,7 +148,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
 
     behaviorStream.stream.listen((event) {
-
 
       if(event is  CustomLoadMoreEventRetryWhenInitFailed){
         retryCallFallback();
@@ -199,7 +198,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
     final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
     if(future != null){
-      executeLoadMore(future).then((value) {
+      _executeLoadMore(future).then((value) {
         setState(() {
           items = [...items ?? [], ...value ?? []];
           state = const CustomLoadMoreStableState();
@@ -226,7 +225,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     });
     final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
     if(future != null){
-      executeLoadMore(future).then((value) {
+      _executeLoadMore(future).then((value) {
         setState(() {
           items = [...items ?? [], ...value ?? []];
           state = const CustomLoadMoreStableState();
@@ -255,7 +254,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     });
     final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
     if(future != null){
-      executeLoadMore(future).then((value) {
+      _executeLoadMore(future).then((value) {
         setState(() {
           items = value;
           state = const CustomLoadMoreStableState();
@@ -279,7 +278,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
     final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
     if(future!=null){
-      executeLoadMore(future).then((value) {
+      _executeLoadMore(future).then((value) {
         setState(() {
           items = value;
           state = const CustomLoadMoreStableState();

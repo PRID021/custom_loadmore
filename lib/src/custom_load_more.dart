@@ -128,7 +128,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   }
   ///
   void calculateResource({covariant CustomLoadMore<T>? oldWidget}){
-    bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
+
 
     items = null;
 
@@ -147,6 +147,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     customScrollableLayoutBuilderInjector.setParent = widget;
 
     if(oldWidget== null){
+      bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
       state = const CustomLoadMoreInitState();
       final customLoadMoreController =
           widget.customLoadMoreController ?? CustomLoadMoreController();

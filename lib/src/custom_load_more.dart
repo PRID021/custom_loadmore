@@ -107,7 +107,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     super.didUpdateWidget(oldWidget);
     // customScrollableLayoutBuilderInjector.setParent = widget;
     releaseResource();
-    calculateResource();
+    calculateResource(oldWidget: oldWidget);
   }
 
   int get pageIndex {

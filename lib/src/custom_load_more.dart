@@ -106,7 +106,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // customScrollableLayoutBuilderInjector.setParent = widget;
-    releaseResource();
     calculateResource(oldWidget: oldWidget);
   }
 
@@ -156,6 +155,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
       behaviorStreamSubscription = behaviorStream.stream.listen(evenHandler);
     }
     if(oldWidget!=null && !identical(widget.customLoadMoreController, oldWidget.customLoadMoreController)){
+      releaseResource();
       final customLoadMoreController =
           widget.customLoadMoreController ?? CustomLoadMoreController();
       scrollController = customLoadMoreController.scrollController;

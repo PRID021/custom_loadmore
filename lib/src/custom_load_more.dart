@@ -61,15 +61,16 @@ class CustomLoadMore<T> extends StatefulWidget {
 
 class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   late CustomLoadMoreState state;
-  late List<T>? items;
+   List<T>? items;
   late CustomScrollableLayoutBuilderInjector<T>
       customScrollableLayoutBuilderInjector;
   late double loadMoreOffset;
   late ScrollController scrollController;
-  late final PageStorageBucket bucketGlobal;
+  late  PageStorageBucket bucketGlobal;
 
   /// This stream is used to process event come from user.
-  late final StreamController<CustomLoadMoreEvent> behaviorStream;
+  late  StreamController<CustomLoadMoreEvent> behaviorStream;
+  late StreamSubscription<CustomLoadMoreEvent>? behaviorStreamSubscription;
 
   // ICustomLoadMore interface provide the load more function to load more data
   // from server.
@@ -95,11 +96,15 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     return completer.future;
   }
 
+  /// Whether the load more controller have been provided by user or not.
+  bool isControllerProvided = false;
 
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    customScrollableLayoutBuilderInjector.setParent = widget;
+    // customScrollableLayoutBuilderInjector.setParent = widget;
+    releaseResource();
+    calculateResource();
   }
 
   int get pageIndex {
@@ -114,9 +119,15 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   @override
   void initState() {
     super.initState();
+    calculateResource();
+    if(widget.autoRun){
+      firstLoad();
+    }
+  }
+  ///
+  void calculateResource(){
     bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
     state = const CustomLoadMoreInitState();
-    // state = const CustomLoadMoreInitLoadingState();
     items = null;
 
     /// Instead use directly widget.loadMoreCallback, that will be remove entirely
@@ -124,10 +135,14 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     /// function to load more data from server to better adaptation with more state management.
     loadMoreProvider = (widget.loadMoreProvider?.loadMore) ?? (widget.loadMoreCallback);
     assert(loadMoreProvider != null, 'Must provide load more function to load more data from server.');
-    CustomLoadMoreController customLoadMoreController =
+    if(widget.customLoadMoreController!=null){
+      isControllerProvided = true;
+    }
+    final customLoadMoreController =
         widget.customLoadMoreController ?? CustomLoadMoreController();
     scrollController = customLoadMoreController.scrollController;
     behaviorStream = customLoadMoreController.behaviorStream;
+
 
     loadMoreOffset = widget.loadMoreOffset ?? kLoadMoreExtent;
     customScrollableLayoutBuilderInjector =
@@ -135,40 +150,49 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
             CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
 
-    behaviorStream.stream.listen((event) {
+    behaviorStreamSubscription = behaviorStream.stream.listen(evenHandler);
 
-      if(event is  CustomLoadMoreEventRetryWhenInitLoadingFailed){
-        firstLoad();
-        return;
-      }
-      if(event is CustomLoadMoreEventRetryWhenLoadMoreFailed){
-        retryLoadMoreFailed();
-        return;
-      }
+  }
 
-      if(event is CustomLoadMoreEventPullToRefresh){
-        firstLoad();
-        return;
-      }
+  /// Release Resource Before Update
+  void releaseResource(){
+    scrollController.dispose();
+    behaviorStream.close();
+    behaviorStreamSubscription?.cancel();
+  }
 
-      if(event is CustomLoadMoreEventScrollToLoadMore){
-        loadMore();
-        return;
-      }
 
-      if(event is CustomLoadMoreEventErrorOccurred){
 
-        handelError(
-            errorReason:
-            (event).errorReason);
-        return;
-      }
-    });
-
-    if(widget.autoRun){
+  /// Event handler
+  void evenHandler(CustomLoadMoreEvent event){
+    if(event is  CustomLoadMoreEventRetryWhenInitLoadingFailed){
       firstLoad();
+      return;
+    }
+    if(event is CustomLoadMoreEventRetryWhenLoadMoreFailed){
+      retryLoadMoreFailed();
+      return;
+    }
+
+    if(event is CustomLoadMoreEventPullToRefresh){
+      firstLoad();
+      return;
+    }
+
+    if(event is CustomLoadMoreEventScrollToLoadMore){
+      loadMore();
+      return;
+    }
+
+    if(event is CustomLoadMoreEventErrorOccurred){
+
+      handelError(
+          errorReason:
+          (event).errorReason);
+      return;
     }
   }
+
 
   /// Call back when init failed or first load.
   void firstLoad(){
@@ -262,7 +286,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   @override
   Widget build(BuildContext context) {
-    print("build with state $state");
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         /// That code using to detect user scroll behavior (up or down as vertical and left or right with horizontal).
@@ -297,7 +320,11 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   @override
   void dispose() {
-    scrollController.dispose();
+    if(isControllerProvided == false){
+      scrollController.dispose();
+      behaviorStream.close();
+    }
+    behaviorStreamSubscription?.cancel();
     super.dispose();
   }
 }

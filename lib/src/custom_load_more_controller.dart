@@ -28,7 +28,7 @@ class CustomLoadMoreController {
   }
 
   void refresh() {
-    _behaviorStreamController!.add(
+    _behaviorStreamController?.add(
       const CustomLoadMoreEventPullToRefresh()
     );
   }

@@ -99,6 +99,9 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   /// Whether the load more controller have been provided by user or not.
   bool isControllerProvided = false;
 
+  /// The value that trace that state have been init
+  ///
+  bool isInit = false;
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -123,9 +126,10 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     if(widget.autoRun){
       firstLoad();
     }
+    isInit= true;
   }
   ///
-  void calculateResource(){
+  void calculateResource({covariant CustomLoadMore<T>? oldWidget}){
     bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
     state = const CustomLoadMoreInitState();
     items = null;
@@ -138,19 +142,26 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     if(widget.customLoadMoreController!=null){
       isControllerProvided = true;
     }
-    final customLoadMoreController =
-        widget.customLoadMoreController ?? CustomLoadMoreController();
-    scrollController = customLoadMoreController.scrollController;
-    behaviorStream = customLoadMoreController.behaviorStream;
-
-
     loadMoreOffset = widget.loadMoreOffset ?? kLoadMoreExtent;
     customScrollableLayoutBuilderInjector =
         widget.customScrollableLayoutBuilderInjector ??
             CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
 
-    behaviorStreamSubscription = behaviorStream.stream.asBroadcastStream().listen(evenHandler);
+    if(oldWidget== null){
+      final customLoadMoreController =
+          widget.customLoadMoreController ?? CustomLoadMoreController();
+      scrollController = customLoadMoreController.scrollController;
+      behaviorStream = customLoadMoreController.behaviorStream;
+      behaviorStreamSubscription = behaviorStream.stream.listen(evenHandler);
+    }
+    if(oldWidget!=null && !identical(widget.customLoadMoreController, oldWidget.customLoadMoreController)){
+      final customLoadMoreController =
+          widget.customLoadMoreController ?? CustomLoadMoreController();
+      scrollController = customLoadMoreController.scrollController;
+      behaviorStream = customLoadMoreController.behaviorStream;
+      behaviorStreamSubscription = behaviorStream.stream.listen(evenHandler);
+    }
 
   }
 

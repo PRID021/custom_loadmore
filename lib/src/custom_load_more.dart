@@ -150,7 +150,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
             CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
 
-    behaviorStreamSubscription = behaviorStream.stream.listen(evenHandler);
+    behaviorStreamSubscription = behaviorStream.stream.asBroadcastStream().listen(evenHandler);
 
   }
 

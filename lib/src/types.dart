@@ -32,9 +32,13 @@ class CustomLoadMoreInitState extends CustomLoadMoreState{
   const CustomLoadMoreInitState();
 }
 
-class CustomLoadMoreInitFailedState extends CustomLoadMoreState{
+class CustomLoadMoreInitLoadingState extends CustomLoadMoreState{
+  const CustomLoadMoreInitLoadingState();
+}
+
+class CustomLoadMoreInitLoadingFailedState extends CustomLoadMoreState{
   final dynamic errorReason;
-  const CustomLoadMoreInitFailedState({this.errorReason});
+  const CustomLoadMoreInitLoadingFailedState({this.errorReason});
 }
 
 class CustomLoadMoreStableState extends CustomLoadMoreState{
@@ -59,8 +63,8 @@ class CustomLoadMoreNoMoreDataState extends CustomLoadMoreState{
 abstract class CustomLoadMoreEvent {
   const CustomLoadMoreEvent();
 }
-class CustomLoadMoreEventRetryWhenInitFailed extends CustomLoadMoreEvent{
-  const CustomLoadMoreEventRetryWhenInitFailed();
+class CustomLoadMoreEventRetryWhenInitLoadingFailed extends CustomLoadMoreEvent{
+  const CustomLoadMoreEventRetryWhenInitLoadingFailed();
 }
 
 class CustomLoadMoreEventRetryWhenLoadMoreFailed extends CustomLoadMoreEvent{
@@ -85,6 +89,7 @@ class CustomLoadMoreEventErrorOccurred extends CustomLoadMoreEvent{
 
 
 typedef InitBuilderDelegate = Widget Function(BuildContext context);
+typedef InitLoaderBuilderDelegate = Widget Function(BuildContext context);
 typedef InitFailBuilderDelegate = Widget Function(
     BuildContext context,Exception? errorReason ,VoidCallback retryCallback);
 typedef ListItemBuilderDelegate<T> = Widget Function(

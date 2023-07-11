@@ -15,6 +15,7 @@ import 'package:flutter/rendering.dart';
 class CustomLoadMore<T> extends StatefulWidget {
   final Axis? mainAxisDirection;
   final InitBuilderDelegate initBuilder;
+  final InitLoaderBuilderDelegate initLoaderBuilder;
   final InitFailBuilderDelegate initFailedBuilder;
   final ListItemBuilderDelegate<T> listItemBuilder;
   final LoadMoreBuilderDelegate loadMoreBuilder;
@@ -30,10 +31,12 @@ class CustomLoadMore<T> extends StatefulWidget {
   final bool shrinkWrap;
   final VoidCallback? onRefresh;
   final PageStorageBucket? bucketGlobal;
+  final bool autoRun;
   const CustomLoadMore({
     super.key,
     this.mainAxisDirection,
     required this.initBuilder,
+    required this.initLoaderBuilder,
     required this.initFailedBuilder,
     required this.loadMoreBuilder,
     required this.loadMoreFailedBuilder,
@@ -49,6 +52,7 @@ class CustomLoadMore<T> extends StatefulWidget {
     this.loadMoreOffset,
     this.onRefresh,
     this.loadMoreProvider,
+    this.autoRun = true,
   });
 
   @override
@@ -95,7 +99,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     customScrollableLayoutBuilderInjector.setParent = widget;
   }
 
@@ -113,6 +116,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     super.initState();
     bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
     state = const CustomLoadMoreInitState();
+    // state = const CustomLoadMoreInitLoadingState();
     items = null;
 
     /// Instead use directly widget.loadMoreCallback, that will be remove entirely
@@ -131,26 +135,10 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
             CustomScrollableListViewBuilderInjector();
     customScrollableLayoutBuilderInjector.setParent = widget;
 
-    final future =  loadMoreProvider?.call(pageIndex, widget.pageSize);
-    if(future!= null){
-      _executeLoadMore(future).then((value) {
-        setState(() {
-          items = value;
-          state = const CustomLoadMoreStableState();
-        });
-      }).catchError((error) {
-        setState(() {
-          state = CustomLoadMoreInitFailedState(errorReason: error);
-        });
-      });
-    }
-
-
-
     behaviorStream.stream.listen((event) {
 
-      if(event is  CustomLoadMoreEventRetryWhenInitFailed){
-        retryCallFallback();
+      if(event is  CustomLoadMoreEventRetryWhenInitLoadingFailed){
+        firstLoad();
         return;
       }
       if(event is CustomLoadMoreEventRetryWhenLoadMoreFailed){
@@ -159,7 +147,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
       }
 
       if(event is CustomLoadMoreEventPullToRefresh){
-        pullForRefresh();
+        firstLoad();
         return;
       }
 
@@ -176,12 +164,37 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
         return;
       }
     });
+
+    if(widget.autoRun){
+      firstLoad();
+    }
+  }
+
+  /// Call back when init failed or first load.
+  void firstLoad(){
+    setState(() {
+      items = null;
+      state = const CustomLoadMoreInitLoadingState();
+    });
+      final future =  loadMoreProvider?.call(pageIndex, widget.pageSize);
+      if(future!= null){
+        _executeLoadMore(future).then((value) {
+          setState(() {
+            items = value;
+            state = const CustomLoadMoreStableState();
+          });
+        }).catchError((error) {
+          setState(() {
+            state = CustomLoadMoreInitLoadingFailedState(errorReason: error);
+          });
+        });
+      }
   }
 
   /// This method is used to handle error.
   void handelError({Exception? errorReason}) {
     setState(() {
-      state = CustomLoadMoreInitFailedState(errorReason: errorReason);
+      state = CustomLoadMoreInitLoadingFailedState(errorReason: errorReason);
     });
   }
 
@@ -193,8 +206,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     setState(() {
       state = const CustomLoadMoreLoadingMoreState();
     });
-
-
 
     final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
     if(future != null){
@@ -247,52 +258,11 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   }
 
-  /// Call back when init failed.
-  void retryCallFallback() {
-    setState(() {
-      state = const CustomLoadMoreInitState();
-    });
-    final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
-    if(future != null){
-      _executeLoadMore(future).then((value) {
-        setState(() {
-          items = value;
-          state = const CustomLoadMoreStableState();
-        });
-      }).catchError((error) {
-        setState(() {
-          state = const CustomLoadMoreInitFailedState();
-        });
-      });
-    }
 
-  }
-
-  /// Call back when pull for refresh.
-  void pullForRefresh() {
-    widget.onRefresh?.call();
-    setState(() {
-      items = null;
-      state = const CustomLoadMoreInitState();
-    });
-
-    final future = loadMoreProvider?.call(pageIndex, widget.pageSize);
-    if(future!=null){
-      _executeLoadMore(future).then((value) {
-        setState(() {
-          items = value;
-          state = const CustomLoadMoreStableState();
-        });
-      }).catchError((error) {
-        setState(() {
-          state = CustomLoadMoreInitFailedState(errorReason: error);
-        });
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    print("build with state $state");
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         /// That code using to detect user scroll behavior (up or down as vertical and left or right with horizontal).

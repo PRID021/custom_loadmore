@@ -26,7 +26,7 @@ class CustomLoadMore<T> extends StatefulWidget {
   final double? loadMoreOffset;
   final CustomLoadMoreController? customLoadMoreController;
   final CustomScrollableLayoutBuilderInjector<T>?
-      customScrollableLayoutBuilderInjector;
+  customScrollableLayoutBuilderInjector;
   final ICustomLoadMoreProvider<T>? loadMoreProvider;
   final bool shrinkWrap;
   final VoidCallback? onRefresh;
@@ -61,9 +61,10 @@ class CustomLoadMore<T> extends StatefulWidget {
 
 class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   late CustomLoadMoreState state;
-   List<T>? items;
+
+  List<T>? items;
   late CustomScrollableLayoutBuilderInjector<T>
-      customScrollableLayoutBuilderInjector;
+  customScrollableLayoutBuilderInjector;
   late double loadMoreOffset;
   late ScrollController scrollController;
   late  PageStorageBucket bucketGlobal;
@@ -101,7 +102,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
   /// The value that trace that state have been init
   ///
-  bool isInit = false;
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -125,12 +125,11 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     if(widget.autoRun){
       firstLoad();
     }
-    isInit= true;
   }
   ///
   void calculateResource({covariant CustomLoadMore<T>? oldWidget}){
     bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
-    state = const CustomLoadMoreInitState();
+
     items = null;
 
     /// Instead use directly widget.loadMoreCallback, that will be remove entirely
@@ -148,6 +147,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     customScrollableLayoutBuilderInjector.setParent = widget;
 
     if(oldWidget== null){
+      state = const CustomLoadMoreInitState();
       final customLoadMoreController =
           widget.customLoadMoreController ?? CustomLoadMoreController();
       scrollController = customLoadMoreController.scrollController;
@@ -206,24 +206,25 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
 
 
   /// Call back when init failed or first load.
-  void firstLoad(){
+  void firstLoad()  {
+
     setState(() {
       items = null;
       state = const CustomLoadMoreInitLoadingState();
     });
-      final future =  loadMoreProvider?.call(pageIndex, widget.pageSize);
-      if(future!= null){
-        _executeLoadMore(future).then((value) {
-          setState(() {
-            items = value;
-            state = const CustomLoadMoreStableState();
-          });
-        }).catchError((error) {
-          setState(() {
-            state = CustomLoadMoreInitLoadingFailedState(errorReason: error);
-          });
+    final future =  loadMoreProvider?.call(pageIndex, widget.pageSize);
+    if(future!= null){
+      _executeLoadMore(future).then((value) {
+        setState(() {
+          items = value;
+          state = const CustomLoadMoreStableState();
         });
-      }
+      }).catchError((error) {
+        setState(() {
+          state = CustomLoadMoreInitLoadingFailedState(errorReason: error);
+        });
+      });
+    }
   }
 
   /// This method is used to handle error.

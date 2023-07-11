@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+final CustomLoadMoreController customLoadMoreController =
+    CustomLoadMoreController();
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -74,8 +77,13 @@ class MyHomePageState extends State<MyHomePage> {
                 //   );
                 // }),
                 initBuilder: (context) {
+                  return const Center(child: Text("initBuilder"));
+                },
+                customLoadMoreController: customLoadMoreController,
+                initLoaderBuilder: (context){
                   return const Center(child: CircularProgressIndicator());
                 },
+                autoRun: false,
                 onRefresh: () {},
                 loadMoreBuilder: (context) {
                   return Row(
@@ -144,6 +152,18 @@ class MyHomePageState extends State<MyHomePage> {
                 shrinkWrap: false,
               ),
             ),
+            const SizedBox(
+              height: 24,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                customLoadMoreController.refresh();
+              },
+              child: const Text("Reload"),
+            ),
+            const SizedBox(
+              height: 24,
+            ),
           ],
         ),
       ),
@@ -159,7 +179,7 @@ class MyController implements ICustomLoadMoreProvider<int> {
 
   @override
   Future<List<int>?> loadMore(int pageIndex, int pageSize) async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 3));
     if (!haveMore) {
       return [];
     }

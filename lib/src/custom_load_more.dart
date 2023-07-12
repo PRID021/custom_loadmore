@@ -130,7 +130,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   void calculateResource({covariant CustomLoadMore<T>? oldWidget}){
 
 
-    items = null;
 
     /// Instead use directly widget.loadMoreCallback, that will be remove entirely
     /// in the future. We use ICustomLoadMore interface to provide the load more
@@ -149,6 +148,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     if(oldWidget== null){
       bucketGlobal = widget.bucketGlobal ?? PageStorageBucket();
       state = const CustomLoadMoreInitState();
+      items = null;
       final customLoadMoreController =
           widget.customLoadMoreController ?? CustomLoadMoreController();
       scrollController = customLoadMoreController.scrollController;

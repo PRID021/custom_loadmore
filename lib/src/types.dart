@@ -80,7 +80,7 @@ class CustomLoadMoreEventScrollToLoadMore extends CustomLoadMoreEvent{
 }
 
 class CustomLoadMoreEventErrorOccurred extends CustomLoadMoreEvent{
-  final Exception? errorReason;
+  final dynamic errorReason;
   const CustomLoadMoreEventErrorOccurred({this.errorReason});
 }
 
@@ -91,12 +91,12 @@ class CustomLoadMoreEventErrorOccurred extends CustomLoadMoreEvent{
 typedef InitBuilderDelegate = Widget Function(BuildContext context);
 typedef InitLoaderBuilderDelegate = Widget Function(BuildContext context);
 typedef InitFailBuilderDelegate = Widget Function(
-    BuildContext context,Exception? errorReason ,VoidCallback retryCallback);
+    BuildContext context,dynamic errorReason ,VoidCallback retryCallback);
 typedef ListItemBuilderDelegate<T> = Widget Function(
     BuildContext context, int index, List<T> items);
 typedef LoadMoreBuilderDelegate = Widget Function(BuildContext context);
 typedef LoadMoreFailBuilderDelegate = Widget Function(
-    BuildContext context,Exception? errorReason ,VoidCallback retryLoadMoreCallback);
+    BuildContext context,dynamic errorReason ,VoidCallback retryLoadMoreCallback);
 typedef NoMoreBuilderDelegate = Widget Function(BuildContext context);
 
 /// The callback function of [CustomLoadMore] widget.

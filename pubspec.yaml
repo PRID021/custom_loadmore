@@ -1,6 +1,6 @@
 name: custom_loadmore
 description: A new Flutter package project.
-version: 0.0.1
+version: 1.0.0
 
 environment:
   sdk: '>=2.17.0 <3.0.0'

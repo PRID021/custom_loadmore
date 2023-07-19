@@ -85,9 +85,6 @@ class CustomLoadMoreEventErrorOccurred extends CustomLoadMoreEvent{
 }
 
 
-
-
-
 typedef InitBuilderDelegate = Widget Function(BuildContext context);
 typedef InitLoaderBuilderDelegate = Widget Function(BuildContext context);
 typedef InitFailBuilderDelegate = Widget Function(

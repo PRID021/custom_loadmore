@@ -105,7 +105,6 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   @override
   void didUpdateWidget(covariant CustomLoadMore<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // customScrollableLayoutBuilderInjector.setParent = widget;
     calculateResource(oldWidget: oldWidget);
   }
 

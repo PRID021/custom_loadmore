@@ -1,5 +1,5 @@
 name: custom_loadmore
-description: A new Flutter package project.
+description: Package to assist load more, paging logic  for your Flutter projects.
 version: 0.0.1
 repository: https://github.com/PRID021/custom_loadmore.git
 environment:

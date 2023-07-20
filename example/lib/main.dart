@@ -83,6 +83,9 @@ class MyHomePageState extends State<MyHomePage> {
                 initLoaderBuilder: (context){
                   return const Center(child: CircularProgressIndicator());
                 },
+                initSuccessWithNoDataBuilder: (context) {
+                  return const Center(child: Text("initSuccessWithNoDataBuilder"));
+                },
                 autoRun: false,
                 onRefresh: () {},
                 loadMoreBuilder: (context) {
@@ -180,6 +183,7 @@ class MyController implements ICustomLoadMoreProvider<int> {
   @override
   Future<List<int>?> loadMore(int pageIndex, int pageSize) async {
     await Future.delayed(const Duration(seconds: 3));
+    return [];
     if (!haveMore) {
       return [];
     }

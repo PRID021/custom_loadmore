@@ -68,13 +68,13 @@ abstract class LoadMoreList<T> extends CustomLoadMoreContent<T> {
               AnimatedScale(
                 duration: const Duration(milliseconds: 600),
                 scale: (state is CustomLoadMoreInitState ||  state is CustomLoadMoreInitLoadingState ||
-                        state is  CustomLoadMoreInitLoadingFailedState)
+                        state is  CustomLoadMoreInitLoadingFailedState || state is CustomLoadMoreInitLoadingSuccessWithNoDataState )
                     ? 1
                     : 0,
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 600),
                   opacity: (state is CustomLoadMoreInitState || state is CustomLoadMoreInitLoadingState ||
-                          state is CustomLoadMoreInitLoadingFailedState)
+                          state is CustomLoadMoreInitLoadingFailedState  ||  state is CustomLoadMoreInitLoadingSuccessWithNoDataState)
                       ? 1
                       : 0,
                   child: _buildInitState(context, state),
@@ -107,6 +107,11 @@ abstract class LoadMoreList<T> extends CustomLoadMoreContent<T> {
             streamController.add(const CustomLoadMoreEventRetryWhenInitLoadingFailed());
           },
         ),
+      );
+    }
+    if(state is CustomLoadMoreInitLoadingSuccessWithNoDataState) {
+      return Center(
+        child: widget.initSuccessWithNoDataBuilder(context),
       );
     }
     return const SizedBox.shrink();

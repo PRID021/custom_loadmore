@@ -17,6 +17,7 @@ class CustomLoadMore<T> extends StatefulWidget {
   final InitBuilderDelegate initBuilder;
   final InitLoaderBuilderDelegate initLoaderBuilder;
   final InitFailBuilderDelegate initFailedBuilder;
+  final InitSuccessWithNoDataBuilderDelegate initSuccessWithNoDataBuilder;
   final ListItemBuilderDelegate<T> listItemBuilder;
   final LoadMoreBuilderDelegate loadMoreBuilder;
   final LoadMoreFailBuilderDelegate loadMoreFailedBuilder;
@@ -38,6 +39,7 @@ class CustomLoadMore<T> extends StatefulWidget {
     required this.initBuilder,
     required this.initLoaderBuilder,
     required this.initFailedBuilder,
+    required this.initSuccessWithNoDataBuilder,
     required this.loadMoreBuilder,
     required this.loadMoreFailedBuilder,
     required this.noMoreBuilder,
@@ -217,7 +219,12 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
       _executeLoadMore(future).then((value) {
         setState(() {
           items = value;
-          state = const CustomLoadMoreStableState();
+          if(items?.isEmpty ?? false){
+            state = const CustomLoadMoreInitLoadingSuccessWithNoDataState();
+          }
+          else{
+            state = const CustomLoadMoreStableState();
+          }
         });
       }).catchError((error) {
         setState(() {

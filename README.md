@@ -29,83 +29,14 @@ To use this in your project, you need follow these steps:
 
 ```
 dependencies:
-  custom_loadmore:
-    git:
-      url: https://github.com/PRID021/custom_loadmore.git
-      ref: main
+  custom_loadmore: ^0.0.3
 ```
 
-2. Run `flutter pub get`.
+1. Run `flutter pub get`.
 
-3. Make sure import this file when use this package. </br>`import 'package:custom_loadmore/custom_loadmore.dart'`
+2. Make sure import this file when use this package. </br>`import 'package:custom_loadmore/custom_loadmore.dart'`
 
 ## **Usage**
-
-Here's a short example of how to use the package to implement the load more feature:
-
-```dart
-CustomLoadMore<T>(
-      customLoadMoreController: widget.customLoadMoreController,
-      bucketGlobal: bucketGlobal,
-      customScrollableLayoutBuilderInjector:
-          MonkeyScrollableLayoutBuilderInjector(),
-      mainAxisDirection: Axis.vertical,
-      initBuilder: (context) {
-        return const Center(child: CircularProgressIndicator());
-      },
-      loadMoreBuilder: (context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-            Text("Hold on, loading more..."),
-            CircularProgressIndicator(),
-          ],
-        );
-      },
-      initFailedBuilder: (context, retryCallback) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text("init failed"),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white38,
-              ),
-              onPressed: () {
-                retryCallback.call();
-              },
-              child: const Text("Retry"),
-            ),
-          ],
-        );
-      },
-      loadMoreFailedBuilder: (context, retryLoadMoreCallback) {
-        return Row(
-          children: [
-            const Text("load more failed"),
-            ElevatedButton(
-              onPressed: () {
-                retryLoadMoreCallback.call();
-              },
-              child: const Text("Retry"),
-            ),
-          ],
-        );
-      },
-      noMoreBuilder: (context) {
-        return const Center(child: Text("no more"));
-      },
-      loadMoreCallback: (int pageIndex, int pageSize) async {
-        List<T>? response =
-            await  getInvoiceList(pageIndex, pageSize);
-        return response;
-      },
-      listItemBuilder: (context, index, item) {
-        return Text("item ${item}")
-      },
-      shrinkWrap: false,
-    )
-```
 
 A longer example can be found in the `/example` folder.
 
@@ -124,7 +55,7 @@ To change the default layout behavior (the list view layout), follow these steps
 - `state` : supplies you the current state of the widget.
 - `widget`: provide you to accessibility to widget configuration where you can get all build delegate and other properties. 
 
-3. Attach it new layout injector to `CustomLoadMore`.
+1. Attach it new layout injector to `CustomLoadMore`.
    <br>
    Here is example code that demonstrate these above step.
 

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:custom_loadmore/custom_loadmore.dart';
 import 'package:lottie/lottie.dart';
@@ -46,97 +48,21 @@ class MyHomePageState extends State<MyHomePage> {
               height: 24,
             ),
             Expanded(
-              child: CustomLoadMore<int>(
-                // customScrollableLayoutBuilderInjector:
-                //     CustomSectionListViewBuilderInjector<int, String>(
-                //         sectionFilter: ({required items}) {
-                //   Map<String, List<int>> sortedMap = {};
-                //   for (int i = 0; i < items.length; i++) {
-                //     final value = items[i] ~/ 10;
-
-                //     String collectionName = NumberToWordsEnglish.convert(value);
-                //     bool haveCollection =
-                //         sortedMap.keys.contains(collectionName);
-                //     if (!haveCollection) {
-                //       sortedMap[collectionName] = <int>[];
-                //     } else {
-                //       sortedMap[collectionName]!.add(items[i]);
-                //     }
-                //   }
-
-                //   return sortedMap;
-                // }, sectionBuilder: (key, children) {
-                //   return Column(
-                //     children: [
-                //       Text(key),
-                //       Column(
-                //         mainAxisSize: MainAxisSize.min,
-                //         children: children,
-                //       ),
-                //     ],
-                //   );
-                // }),
-                initBuilder: (context) {
-                  return const Center(child: Text("initBuilder"));
-                },
+              child: CustomListView<int>(
                 customLoadMoreController: customLoadMoreController,
-                initLoaderBuilder: (context){
-                  return const Center(child: CircularProgressIndicator());
+                initBuilder: (context) {
+                  return const Text("Init");
+                },
+                initLoaderBuilder: (context) {
+                  return const CircularProgressIndicator();
+                },
+                initFailedBuilder: (context, error) {
+                  return Text(" $error");
                 },
                 initSuccessWithNoDataBuilder: (context) {
-                  return const Center(child: Text("initSuccessWithNoDataBuilder"));
+                  return const Text("Init success with no data");
                 },
-                autoRun: false,
-                onRefresh: () {},
-                loadMoreBuilder: (context) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: const [
-                      Text("Hold on, loading more..."),
-                      CircularProgressIndicator(),
-                    ],
-                  );
-                },
-                initFailedBuilder: (context, reasonError, retryCallback) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text("init failed"),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white38,
-                        ),
-                        onPressed: () {
-                          retryCallback.call();
-                        },
-                        child: const Text("Retry",
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  );
-                },
-                loadMoreFailedBuilder: (context, error, retryLoadMoreCallback) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      const Text("load more failed"),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white38,
-                        ),
-                        onPressed: () {
-                          retryLoadMoreCallback.call();
-                        },
-                        child: const Text("Retry",
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  );
-                },
-                noMoreBuilder: (context) {
-                  return const Center(child: Text("no more"));
-                },
-                listItemBuilder: (context, index, item) {
+                listItemBuilder: (context, index, items) {
                   return Container(
                     color: Colors.primaries[index % Colors.primaries.length],
                     width: 200,
@@ -150,13 +76,34 @@ class MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 },
-
-                loadMoreProvider: MyController(),
-                shrinkWrap: false,
+                loadMoreBuilder: (context) {
+                  return const ListTile(
+                    title: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                },
+                loadMoreFailedBuilder: (context, error) {
+                  return ListTile(
+                    leading: const Text("Load more failed"),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        customLoadMoreController.retryLoadMore();
+                      },
+                      child: const Text("Reload"),
+                    ),
+                  );
+                },
+                noMoreBuilder: (context) {
+                  return const Text("No more");
+                },
+                loadMoreDataProvider: MyController(),
               ),
             ),
-            const SizedBox(
-              height: 24,
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.black,
             ),
             ElevatedButton(
               onPressed: () {
@@ -174,7 +121,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class MyController implements ICustomLoadMoreProvider<int> {
+class MyController implements ICustomLoadMoreDataProvider<int> {
   int indexStart = 0;
   int numberItemPerPage = 20;
   final int itemTotalCount = 100;
@@ -183,9 +130,12 @@ class MyController implements ICustomLoadMoreProvider<int> {
   @override
   Future<List<int>?> loadMore(int pageIndex, int pageSize) async {
     await Future.delayed(const Duration(seconds: 3));
-    return [];
+    // return [1,2,3,4];
     if (!haveMore) {
       return [];
+    }
+    if (Random().nextBool()) {
+      throw Exception("Load more failed");
     }
     var values =
         List.generate(numberItemPerPage, (index) => index + indexStart);

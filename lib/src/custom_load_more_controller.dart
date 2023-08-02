@@ -37,6 +37,10 @@ class CustomLoadMoreController {
     _behaviorStreamController?.add(const CustomLoadMoreEventScrollToLoadMore());
   }
 
+  void retryLoadMore() {
+    _behaviorStreamController?.add(const CustomLoadMoreEventRetryWhenLoadMoreFailed());
+  }
+
   void announceLoadMoreFailed({Exception? errorReason}) {
     _behaviorStreamController?.add(CustomLoadMoreEventErrorOccurred(errorReason: errorReason));
   }

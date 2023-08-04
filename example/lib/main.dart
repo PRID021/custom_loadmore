@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-final CustomLoadMoreController customLoadMoreController =
+final CustomLoadMoreController<int> customLoadMoreController =
     CustomLoadMoreController();
 
 class MyHomePage extends StatefulWidget {
@@ -36,6 +36,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
+
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -105,12 +108,25 @@ class MyHomePageState extends State<MyHomePage> {
               thickness: 1,
               color: Colors.black,
             ),
-            ElevatedButton(
-              onPressed: () {
-                customLoadMoreController.refresh();
-              },
-              child: const Text("Reload"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    customLoadMoreController.refresh();
+                  },
+                  child: const Text("Reload"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    print("current items: ${customLoadMoreController.currentItems}");
+                  },
+                  child: const Text("Log current items)"),
+                ),
+              ],
             ),
+
             const SizedBox(
               height: 24,
             ),
@@ -118,6 +134,12 @@ class MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print("current items: ${customLoadMoreController.currentItems}");
   }
 }
 

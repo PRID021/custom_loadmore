@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../custom_loadmore.dart';
 import 'custom_list_view_types.dart';
 
-final GlobalKey key = GlobalKey();
+
 
 class CustomListView<T> extends StatefulWidget {
   final InitBuilderDelegate initBuilder;
@@ -16,7 +15,7 @@ class CustomListView<T> extends StatefulWidget {
   final LoadMoreFailBuilderDelegate loadMoreFailedBuilder;
   final NoMoreBuilderDelegate noMoreBuilder;
   final ICustomLoadMoreDataProvider<T>? loadMoreDataProvider;
-  final CustomLoadMoreController? customLoadMoreController;
+  final CustomLoadMoreController<T>? customLoadMoreController;
   final bool shrinkWrap;
   final bool autoRun;
   final Axis scrollDirection;
@@ -45,8 +44,9 @@ class CustomListView<T> extends StatefulWidget {
 }
 
 class _CustomListViewState<T> extends State<CustomListView<T>> {
-  late CustomLoadMoreController controller;
-  final localController = CustomLoadMoreController();
+  late CustomLoadMoreController<T> controller;
+  final localController = CustomLoadMoreController<T>();
+  final GlobalKey key = GlobalKey();
 
   @override
   void initState() {
@@ -144,11 +144,11 @@ class _CustomListViewState<T> extends State<CustomListView<T>> {
       autoRun: widget.autoRun,
       key: key,
       loadMoreDataProvider: widget.loadMoreDataProvider,
-      shrinkWrap: widget.shrinkWrap,
       widgetBuilder: (context, state, items, controller) {
         return CustomScrollView(
           scrollDirection: widget.scrollDirection,
           controller: controller.scrollController,
+          shrinkWrap: widget.shrinkWrap,
           physics: widget.physics,
           slivers: [
             SliverList(

@@ -1,17 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'custom_load_more_controller.dart';
 import 'types.dart';
 import 'package:flutter/rendering.dart';
 
 class CustomLoadMore<T> extends StatefulWidget {
   final Axis? mainAxisDirection;
   final int pageSize;
-  final CustomLoadMoreController? customLoadMoreController;
+  final CustomLoadMoreController<T>? customLoadMoreController;
   final LoadmoreWidgetBuilder<T> widgetBuilder;
   final ICustomLoadMoreDataProvider<T>? loadMoreDataProvider;
-  final bool shrinkWrap;
   final VoidCallback? onRefresh;
   final PageStorageBucket? bucketGlobal;
   final bool autoRun;
@@ -24,7 +22,6 @@ class CustomLoadMore<T> extends StatefulWidget {
     this.bucketGlobal,
     this.pageSize = 20,
     this.customLoadMoreController,
-    this.shrinkWrap = false,
     this.onRefresh,
     this.loadMoreDataProvider,
     this.autoRun = true,
@@ -38,15 +35,25 @@ class CustomLoadMore<T> extends StatefulWidget {
 class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   late CustomLoadMoreState state;
 
-  List<T>? items;
+  List<T>? _items;
+
+  List<T>? get items => _items;
+
+  set items(List<T>? value) {
+    _items = value;
+    itemsNotifier.value = value;
+  }
+
+  late ValueNotifier<List<T>?> itemsNotifier;
+
   late double triggerLoadMoreOffset;
   late PageStorageBucket bucketGlobal;
 
   ///load more controller
-  late CustomLoadMoreController loadMoreController;
+  late CustomLoadMoreController<T> loadMoreController;
 
   /// Default load more controller
-  final localCustomLoadMoreController = CustomLoadMoreController();
+  final localCustomLoadMoreController = CustomLoadMoreController<T>();
 
   /// The StreamSubscription that subscribe to [loadMoreController.behaviorStream] of load more widget.
   late StreamSubscription<CustomLoadMoreEvent>? localBehaviorStreamSubscription;
@@ -96,10 +103,12 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
   @override
   void initState() {
     super.initState();
+    itemsNotifier = ValueNotifier(items);
     calculateResource();
     if (widget.autoRun) {
       firstLoad();
     }
+    loadMoreController._setValueNotifier(itemsNotifier) ;
   }
 
   ///
@@ -283,10 +292,10 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
       child: PageStorage(
         bucket: bucketGlobal,
         child: widget.widgetBuilder(
-           context,
-           state,
-           items,
-           loadMoreController,
+          context,
+          state,
+          items,
+          loadMoreController,
         ),
       ),
     );
@@ -297,5 +306,63 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     releaseStreamSubscription();
     localCustomLoadMoreController.dispose();
     super.dispose();
+  }
+}
+
+class CustomLoadMoreController<T> {
+  StreamController<CustomLoadMoreEvent>? _behaviorStreamController;
+  ScrollController? _scrollController;
+  ValueNotifier<List<T>?>? _valueNotifier;
+
+   _setValueNotifier(ValueNotifier<List<T>?> valueNotifier) {
+    _valueNotifier = valueNotifier;
+  }
+
+  List<T>? get currentItems {
+    if (_valueNotifier != null) return _valueNotifier!.value;
+    return null;
+  }
+
+  set behaviorStream(StreamController<CustomLoadMoreEvent> behaviorStream) {
+    _behaviorStreamController = behaviorStream;
+  }
+
+  StreamController<CustomLoadMoreEvent> get behaviorStream {
+    if (_behaviorStreamController != null) return _behaviorStreamController!;
+    _behaviorStreamController = StreamController<CustomLoadMoreEvent>();
+    return _behaviorStreamController!;
+  }
+
+  set scrollController(ScrollController scrollController) {
+    _scrollController = scrollController;
+  }
+
+  ScrollController get scrollController {
+    if (_scrollController != null) return _scrollController!;
+    _scrollController = ScrollController();
+    return _scrollController!;
+  }
+
+  void refresh() {
+    _behaviorStreamController?.add(const CustomLoadMoreEventPullToRefresh());
+  }
+
+  void loadMore() {
+    _behaviorStreamController?.add(const CustomLoadMoreEventScrollToLoadMore());
+  }
+
+  void retryLoadMore() {
+    _behaviorStreamController
+        ?.add(const CustomLoadMoreEventRetryWhenLoadMoreFailed());
+  }
+
+  void announceLoadMoreFailed({Exception? errorReason}) {
+    _behaviorStreamController
+        ?.add(CustomLoadMoreEventErrorOccurred(errorReason: errorReason));
+  }
+
+  void dispose() {
+    _behaviorStreamController?.close();
+    _scrollController?.dispose();
   }
 }

@@ -46,7 +46,6 @@ class CustomListView<T> extends StatefulWidget {
 class _CustomListViewState<T> extends State<CustomListView<T>> {
   late CustomLoadMoreController<T> controller;
   final localController = CustomLoadMoreController<T>();
-  final GlobalKey key = GlobalKey();
 
   @override
   void initState() {
@@ -142,7 +141,6 @@ class _CustomListViewState<T> extends State<CustomListView<T>> {
     return CustomLoadMore<T>(
       customLoadMoreController: controller,
       autoRun: widget.autoRun,
-      key: key,
       loadMoreDataProvider: widget.loadMoreDataProvider,
       widgetBuilder: (context, state, items, controller) {
         return CustomScrollView(

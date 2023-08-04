@@ -108,7 +108,7 @@ class _CustomLoadMoreState<T> extends State<CustomLoadMore<T>> {
     if (widget.autoRun) {
       firstLoad();
     }
-    loadMoreController._setValueNotifier(itemsNotifier) ;
+    loadMoreController._setValueNotifier(itemsNotifier);
   }
 
   ///
@@ -314,8 +314,31 @@ class CustomLoadMoreController<T> {
   ScrollController? _scrollController;
   ValueNotifier<List<T>?>? _valueNotifier;
 
-   _setValueNotifier(ValueNotifier<List<T>?> valueNotifier) {
+  final List<VoidCallback> _listeners = [];
+
+  _setValueNotifier(ValueNotifier<List<T>?> valueNotifier) {
+    if (identical(_valueNotifier, valueNotifier)) {
+      return;
+    }
     _valueNotifier = valueNotifier;
+    for (var element in _listeners) {
+      _valueNotifier?.addListener(element);
+    }
+  }
+
+  void addListener(VoidCallback listener) {
+    if (_listeners.contains(listener)) {
+      return;
+    }
+    _listeners.add(listener);
+    _valueNotifier?.addListener(listener);
+  }
+
+  void removeListener(VoidCallback listener) {
+    if (_listeners.contains(listener)) {
+      _valueNotifier?.removeListener(listener);
+      _listeners.remove(listener);
+    }
   }
 
   List<T>? get currentItems {

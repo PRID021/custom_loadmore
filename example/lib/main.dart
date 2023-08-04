@@ -25,7 +25,9 @@ class MyApp extends StatelessWidget {
 }
 
 final CustomLoadMoreController<int> customLoadMoreController =
-    CustomLoadMoreController();
+    CustomLoadMoreController()..addListener(() {
+        print("Load more status: ${customLoadMoreController.currentItems}");
+    });
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -100,7 +102,7 @@ class MyHomePageState extends State<MyHomePage> {
                 noMoreBuilder: (context) {
                   return const Text("No more");
                 },
-                loadMoreDataProvider: MyController(),
+                loadMoreDataProvider: LoadmoreDataProvider(),
               ),
             ),
             const Divider(
@@ -143,7 +145,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class MyController implements ICustomLoadMoreDataProvider<int> {
+class LoadmoreDataProvider implements ICustomLoadMoreDataProvider<int> {
   int indexStart = 0;
   int numberItemPerPage = 20;
   final int itemTotalCount = 100;

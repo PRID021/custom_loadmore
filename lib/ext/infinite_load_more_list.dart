@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../custom_loadmore.dart';
-import 'custom_list_view_types.dart';
+import 'infinite_load_more_list_types.dart';
 
 
 
-class CustomListView<T> extends StatefulWidget {
+class InfiniteLoadMoreList<T> extends StatefulWidget {
   final InitBuilderDelegate initBuilder;
   final InitLoaderBuilderDelegate initLoaderBuilder;
   final InitFailBuilderDelegate initFailedBuilder;
@@ -21,7 +21,7 @@ class CustomListView<T> extends StatefulWidget {
   final Axis scrollDirection;
   final ScrollPhysics physics;
 
-  const CustomListView({
+  const InfiniteLoadMoreList({
     super.key,
     required this.initBuilder,
     required this.initLoaderBuilder,
@@ -40,10 +40,10 @@ class CustomListView<T> extends StatefulWidget {
   });
 
   @override
-  State<CustomListView<T>> createState() => _CustomListViewState<T>();
+  State<InfiniteLoadMoreList<T>> createState() => _InfiniteLoadMoreListState<T>();
 }
 
-class _CustomListViewState<T> extends State<CustomListView<T>> {
+class _InfiniteLoadMoreListState<T> extends State<InfiniteLoadMoreList<T>> {
   late CustomLoadMoreController<T> controller;
   final localController = CustomLoadMoreController<T>();
 

@@ -40,7 +40,6 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
 
 
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -53,7 +52,7 @@ class MyHomePageState extends State<MyHomePage> {
               height: 24,
             ),
             Expanded(
-              child: CustomListView<int>(
+              child: InfiniteLoadMoreList<int>(
                 customLoadMoreController: customLoadMoreController,
                 initBuilder: (context) {
                   return const Text("Init");
